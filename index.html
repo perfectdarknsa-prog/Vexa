@@ -20,21 +20,46 @@
         --cyan: #f2f4f2;
         --violet: #b8bdb9;
         --red: #929894;
+        --holo-cyan: #65e7f0;
+        --holo-magenta: #ed71d6;
+        --holo-blue: #648bff;
+        --holo-purple: #ad91ff;
+        --holo-green: #a7eda4;
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
         min-height: 100vh;
         background:
-          radial-gradient(ellipse at 72% -8%, rgba(129, 139, 132, .13), transparent 34rem),
+          radial-gradient(ellipse at 18% 12%, rgba(101, 231, 240, .07), transparent 28rem),
+          radial-gradient(ellipse at 82% 28%, rgba(237, 113, 214, .06), transparent 30rem),
+          radial-gradient(ellipse at 50% 90%, rgba(100, 139, 255, .06), transparent 32rem),
           linear-gradient(135deg, rgba(104, 112, 107, .08) 25%, transparent 25%) 0 0 / 34px 34px,
           var(--bg);
         color: var(--ink);
         font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
+      body::before, body::after { position: fixed; inset: 0; z-index: 0; pointer-events: none; content: ""; }
+      body::before {
+        background: radial-gradient(circle at 50% 48%, transparent 17%, rgba(101, 231, 240, .035) 17.2% 17.4%, transparent 17.6% 29%, rgba(237, 113, 214, .03) 29.2% 29.4%, transparent 29.6%), conic-gradient(from 12deg at 50% 48%, transparent 0 43deg, rgba(100, 139, 255, .035) 44deg 45deg, transparent 46deg 88deg, rgba(173, 145, 255, .03) 89deg 90deg, transparent 91deg 360deg);
+      }
+      body::after { opacity: 0; background: radial-gradient(circle at 50% 50%, #030405 0 4%, rgba(8, 8, 14, .92) 5%, rgba(173, 145, 255, .42) 6%, rgba(101, 231, 240, .14) 9%, transparent 24%); transition: opacity .5s ease; }
+      body.has-sigil-match::after { opacity: .75; animation: black-hole-swell 3s ease-in-out infinite; }
+      @keyframes holo-spectrum {
+        0%, 18% { color: var(--holo-cyan); text-shadow: 0 0 11px rgba(101, 231, 240, .65); }
+        20%, 38% { color: var(--holo-magenta); text-shadow: 0 0 11px rgba(237, 113, 214, .65); }
+        40%, 58% { color: var(--holo-blue); text-shadow: 0 0 11px rgba(100, 139, 255, .7); }
+        60%, 78% { color: var(--holo-purple); text-shadow: 0 0 11px rgba(173, 145, 255, .65); }
+        80%, 98% { color: var(--holo-green); text-shadow: 0 0 11px rgba(167, 237, 164, .55); }
+        100% { color: var(--holo-cyan); text-shadow: 0 0 11px rgba(101, 231, 240, .65); }
+      }
+      @keyframes black-hole-swell {
+        0%, 100% { transform: scale(.82); opacity: .35; }
+        50% { transform: scale(1.12); opacity: .82; }
+      }
       button, textarea { font: inherit; }
       button { color: inherit; }
-      .shell { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+      .shell { position: relative; z-index: 1; width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
       .topbar { height: 76px; border-bottom: 1px solid rgba(220, 226, 222, .12); display: flex; align-items: center; justify-content: space-between; }
       .brand { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; }
       .brand-mark { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #4a504c; border-radius: 11px; color: var(--mint); background: rgba(60, 67, 62, .32); font: 22px/1 Georgia, serif; }
@@ -73,6 +98,7 @@
       .action.secondary { border-color: #3a403c; background: #1b1f1c; color: var(--ink); font-weight: 550; }
       .key-hint { color: var(--faint); font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
       .output-box { min-height: 126px; padding: 15px; border: 1px solid #363d38; border-radius: 10px; background: linear-gradient(135deg, rgba(45, 51, 47, .34), #0c0f0d 75%); color: var(--cyan); overflow-wrap: anywhere; white-space: pre-wrap; font: 13px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .output-box[data-match="true"] { border-color: var(--holo-purple); background: radial-gradient(ellipse 22% 85% at 50% 50%, #030405 0 20%, rgba(173, 145, 255, .34) 26%, rgba(101, 231, 240, .12) 43%, transparent 75%), linear-gradient(135deg, #17131d, #0c0f0d 75%); box-shadow: 0 0 26px rgba(173, 145, 255, .18), inset 0 0 30px rgba(0, 0, 0, .55); }
       .output-box[data-empty="true"] { color: #737a75; }
       .output-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; color: var(--faint); font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
       .output-foot strong { color: var(--cyan); font-weight: 500; }
@@ -88,10 +114,14 @@
       .key-group[aria-label^="Crescent"] .key-group-title::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 50%; background: radial-gradient(circle at 68% 32%, transparent 42%, currentColor 48% 100%); vertical-align: -1px; }
       .key-token-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
       .key-token { display: flex; align-items: center; justify-content: space-between; gap: 3px; min-width: 0; padding: 4px 5px; border-radius: 5px; background: #181b19; color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; }
-      .key-token b { overflow: hidden; color: var(--ink); font: 12px Georgia, serif; text-overflow: ellipsis; }
+      .key-token b { overflow: hidden; color: var(--ink); font: 12px Georgia, serif; text-overflow: ellipsis; animation: holo-spectrum 12s ease-in-out infinite; }
+      .key-token-list .key-token:nth-child(3n + 2) b { animation-delay: -4s; }
+      .key-token-list .key-token:nth-child(3n) b { animation-delay: -8s; }
       .mapping-note { margin: 13px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
       .field-rail { margin-top: 16px; padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: #0e1110; }
       .field-rail-head { display: flex; justify-content: space-between; gap: 8px; color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
+      .spectrum-line { height: 2px; margin: 8px 0; border-radius: 2px; background: linear-gradient(90deg, var(--holo-cyan), var(--holo-magenta), var(--holo-blue), var(--holo-purple), var(--holo-green)); background-size: 200% 100%; animation: spectrum-shift 12s ease-in-out infinite; }
+      @keyframes spectrum-shift { 0%, 18% { background-position: 0 0; } 20%, 38% { background-position: 25% 0; } 40%, 58% { background-position: 50% 0; } 60%, 78% { background-position: 75% 0; } 80%, 100% { background-position: 100% 0; } }
       .terrain { height: 64px; margin: 9px 0 8px; border-radius: 6px; background: repeating-radial-gradient(ellipse at 35% 55%, transparent 0 9px, rgba(224, 229, 225, .16) 10px 11px, transparent 12px 18px), linear-gradient(90deg, #141816, #0c0f0d); }
       .field-scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
       .field-scale span { color: var(--ink); text-align: center; font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; }
@@ -102,6 +132,7 @@
       .metric { padding: 10px 11px; border-radius: 8px; background: rgba(12, 14, 13, .78); }
       .metric-label { display: block; color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em; text-transform: uppercase; }
       .metric-value { display: block; margin-top: 5px; color: var(--mint); font: 16px ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .metric-value.match-active { color: var(--holo-purple); text-shadow: 0 0 10px rgba(173, 145, 255, .7); }
       .warning { display: flex; gap: 11px; margin-top: 18px; padding: 14px 15px; border: 1px solid rgba(190, 197, 192, .2); border-radius: 10px; background: rgba(64, 70, 66, .12); color: #aeb4af; font-size: 11px; line-height: 1.55; }
       .warning-mark { flex: 0 0 auto; color: var(--red); font: 15px Georgia, serif; }
       .warning strong { color: #d8ddda; font-weight: 650; }
@@ -124,7 +155,7 @@
         .footer { flex-direction: column; gap: 6px; }
         .top-status { font-size: 9px; }
       }
-      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
     </style>
   </head>
   <body>
@@ -192,7 +223,8 @@
               </div>
               <p class="mapping-note">Each uppercase letter has one token. Lowercase and other characters pass through; literal opening brackets are escaped for reversibility.</p>
               <div class="field-rail" aria-label="Illustrative field scale and reference expression">
-                <div class="field-rail-head"><span>Geospatial cipher · illustrative</span><span>01—05</span></div>
+                <div class="field-rail-head"><span>Geospatial cipher · 3-pulse field</span><span>01—05</span></div>
+                <div class="spectrum-line" role="img" aria-label="Pulse palette cycles cyan, magenta, blue, purple, then green"></div>
                 <div class="terrain" aria-hidden="true"></div>
                 <div class="field-scale" aria-label="Scale bands: 12x, 12.5x, 13x, 13.5x, 14x">
                   <span>12x</span><span>12.5x</span><span>13x</span><span>13.5x</span><span>14x</span>
@@ -207,6 +239,7 @@
                 <div class="metric"><span class="metric-label">Input</span><span class="metric-value" id="lengthMetric">0000</span></div>
                 <div class="metric"><span class="metric-label">Key pairs</span><span class="metric-value">26</span></div>
                 <div class="metric"><span class="metric-label">Persistence</span><span class="metric-value">NONE</span></div>
+                <div class="metric"><span class="metric-label">Match resonance</span><span class="metric-value" id="matchMetric" role="status" aria-live="polite">IDLE</span></div>
               </div>
             </section>
           </aside>
@@ -232,6 +265,7 @@
         const inputCount = document.querySelector("#inputCount");
         const modeMetric = document.querySelector("#modeMetric");
         const lengthMetric = document.querySelector("#lengthMetric");
+        const matchMetric = document.querySelector("#matchMetric");
         let mode = "encode";
 
         function encodeText(value) {
@@ -249,8 +283,24 @@
           });
         }
 
+        function containsRepeatedToken(value) {
+          const seen = new Set();
+          for (const [, payload] of value.matchAll(/⟦([^⟧]+)⟧/gu)) {
+            if (!reverse.has(payload)) continue;
+            if (seen.has(payload)) return true;
+            seen.add(payload);
+          }
+          return false;
+        }
+
         function renderResult() {
           const result = mode === "encode" ? encodeText(source.value) : decodeText(source.value);
+          const matchText = mode === "encode" ? result : source.value;
+          const hasMatch = containsRepeatedToken(matchText);
+          output.dataset.match = String(hasMatch);
+          document.body.classList.toggle("has-sigil-match", hasMatch);
+          matchMetric.textContent = hasMatch ? "MATCHED" : "IDLE";
+          matchMetric.classList.toggle("match-active", hasMatch);
           output.textContent = result || "Your transformed text appears here.";
           output.dataset.empty = String(result.length === 0);
           outputCount.textContent = `${Array.from(result).length} characters`;
