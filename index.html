@@ -4,8 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0a0d0c" />
-    <meta name="description" content="Mew Cipher is a local, educational sigil-substitution playground." />
-    <title>Mew Cipher — Sigil Lab</title>
+        <meta name="description" content="Mew Cipher is a local educational cipher with custom runic, hieroglyphic, cuneiform-inspired, and zodiac keys." />
+        <title>Mew Cipher — Zodiac Sigil Lab</title>
+
     <style>
       :root {
         color-scheme: dark;
@@ -74,9 +75,14 @@
       h1 { margin: 15px 0 8px; font: 500 clamp(34px, 5vw, 54px)/1.02 Georgia, "Times New Roman", serif; letter-spacing: -.035em; }
       .intro { max-width: 600px; margin: 0; color: var(--muted); font-size: 14px; }
       .intro strong { color: var(--ink); font-weight: 550; }
-      .hero-row { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 34px; }
-      .hero-note { max-width: 210px; padding: 12px 14px; border-left: 1px solid var(--violet); color: var(--muted); font: 11px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; }
-      .hero-note b { display: block; color: var(--violet); font-weight: 500; letter-spacing: .09em; text-transform: uppercase; }
+      .hero-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 34px; }
+      .seal-figure { position: relative; flex: 0 0 236px; width: 236px; aspect-ratio: 1; margin: 0 8px 0 0; overflow: hidden; border: 1px solid rgba(230, 220, 255, .5); border-radius: 50%; background: #0b0b11; box-shadow: 0 0 36px rgba(101, 231, 240, .16), 0 0 44px rgba(237, 113, 214, .12); isolation: isolate; }
+      .seal-figure img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 46%; filter: saturate(.86) contrast(1.06); }
+      .seal-figure::after { position: absolute; inset: 6%; border: 1px solid rgba(227, 221, 255, .75); border-radius: 50%; box-shadow: inset 0 0 18px rgba(101, 231, 240, .18), 0 0 16px rgba(237, 113, 214, .25); content: ""; pointer-events: none; }
+      .seal-orbit { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+      .seal-orbit span { position: absolute; top: 50%; left: 50%; color: var(--holo-cyan); font: 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; text-shadow: 0 0 7px currentColor; animation: holo-spectrum 12s ease-in-out infinite; transform: translate(-50%, -50%) rotate(calc(var(--orbit-index) * 13.846deg)) translateY(-106px) rotate(calc(var(--orbit-index) * -13.846deg)); }
+      .seal-orbit span:nth-child(3n + 2) { animation-delay: -4s; }
+      .seal-orbit span:nth-child(3n) { animation-delay: -8s; }
       .workspace { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(270px, .8fr); gap: 16px; align-items: start; }
       .panel { border: 1px solid var(--line); border-radius: 15px; background: linear-gradient(150deg, rgba(26, 29, 27, .98), rgba(16, 18, 17, .98)); box-shadow: 0 18px 50px rgba(0, 0, 0, .18); }
       .composer { overflow: hidden; }
@@ -110,11 +116,24 @@
       .key-groups { display: grid; gap: 8px; }
       .key-group { padding: 9px; border: 1px solid #343a36; border-radius: 9px; background: rgba(14, 16, 15, .72); }
       .key-group-title { margin-bottom: 7px; color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
-      .key-group[aria-label^="Hexagon"] .key-group-title::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border: 1px solid currentColor; clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); vertical-align: -1px; }
-      .key-group[aria-label^="Crescent"] .key-group-title::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 50%; background: radial-gradient(circle at 68% 32%, transparent 42%, currentColor 48% 100%); vertical-align: -1px; }
+      .key-group[aria-label^="Cuneiform"] .key-group-title::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-left: 2px solid currentColor; border-bottom: 1px solid currentColor; transform: skew(-20deg); vertical-align: -1px; }
+      .key-group[aria-label^="Hieroglyphic"] .key-group-title::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border: 1px solid currentColor; border-radius: 50%; box-shadow: 0 0 5px currentColor; vertical-align: -1px; }
+      .key-group[aria-label^="Zodiac"] .key-group-title::before { content: "✳"; display: inline-block; margin-right: 5px; color: var(--holo-purple); font-size: 11px; vertical-align: -1px; }
       .key-token-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
-      .key-token { display: flex; align-items: center; justify-content: space-between; gap: 3px; min-width: 0; padding: 4px 5px; border-radius: 5px; background: #181b19; color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; }
-      .key-token b { overflow: hidden; color: var(--ink); font: 12px Georgia, serif; text-overflow: ellipsis; animation: holo-spectrum 12s ease-in-out infinite; }
+      .key-token { display: flex; align-items: center; gap: 3px; min-width: 0; min-height: 32px; padding: 4px; border: 1px solid #252c28; border-radius: 5px; background: #181b19; color: var(--muted); font: 7.5px ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .key-token b { flex: 0 0 auto; color: var(--ink); font: 12px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", Georgia, serif; animation: holo-spectrum 12s ease-in-out infinite; }
+      .key-token b::after { margin-left: 2px; color: var(--ink); font: 8px ui-monospace, SFMono-Regular, Menlo, monospace; animation: holo-spectrum 12s ease-in-out infinite; }
+      .key-token-list .key-token:nth-child(3n + 2) b::after { animation-delay: -4s; }
+      .key-token-list .key-token:nth-child(3n) b::after { animation-delay: -8s; }
+      .key-group[aria-label^="Runic"] .key-token-list { counter-reset: rune-token; }
+      .key-group[aria-label^="Runic"] .key-token b::after { counter-increment: rune-token; content: "R" counter(rune-token); }
+      .key-group[aria-label^="Cuneiform"] .key-token-list { counter-reset: cuneiform-token; }
+      .key-group[aria-label^="Cuneiform"] .key-token b::after { counter-increment: cuneiform-token; content: "C" counter(cuneiform-token); }
+      .key-group[aria-label^="Hieroglyphic"] .key-token-list { counter-reset: hieroglyph-token; }
+      .key-group[aria-label^="Hieroglyphic"] .key-token b::after { counter-increment: hieroglyph-token; content: "H" counter(hieroglyph-token); }
+      .key-group[aria-label^="Zodiac"] .key-token-list { grid-template-columns: repeat(3, minmax(0, 1fr)); counter-reset: zodiac-token; }
+      .key-group[aria-label^="Zodiac"] .key-token b::after { counter-increment: zodiac-token; content: "Z" counter(zodiac-token); }
+      .key-token span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .key-token-list .key-token:nth-child(3n + 2) b { animation-delay: -4s; }
       .key-token-list .key-token:nth-child(3n) b { animation-delay: -8s; }
       .mapping-note { margin: 13px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
@@ -141,14 +160,17 @@
       @media (max-width: 800px) {
         .workspace { grid-template-columns: 1fr; }
         .side-stack { grid-template-columns: 1fr 1fr; align-items: start; }
-        .hero-note { max-width: 180px; }
+        .hero-row { align-items: flex-start; flex-direction: column; }
+        .seal-figure { align-self: flex-end; flex-basis: 210px; width: 210px; }
+        .seal-orbit span { transform: translate(-50%, -50%) rotate(calc(var(--orbit-index) * 13.846deg)) translateY(-94px) rotate(calc(var(--orbit-index) * -13.846deg)); }
       }
       @media (max-width: 560px) {
         .shell { width: min(100% - 32px, 440px); }
         .topbar { height: 66px; }
         main { padding-top: 36px; }
         .hero-row { align-items: start; flex-direction: column; gap: 17px; margin-bottom: 24px; }
-        .hero-note { max-width: none; }
+        .seal-figure { align-self: center; flex-basis: min(230px, 72vw); width: min(230px, 72vw); }
+        .seal-orbit span { transform: translate(-50%, -50%) rotate(calc(var(--orbit-index) * 13.846deg)) translateY(-103px) rotate(calc(var(--orbit-index) * -13.846deg)); }
         .panel-head { align-items: flex-start; flex-direction: column; padding: 14px 16px; }
         .work-body { padding: 16px; }
         .side-stack { grid-template-columns: 1fr; }
@@ -165,16 +187,19 @@
           <span class="brand-mark" aria-hidden="true">§</span>
           <span><span class="brand-name">Mew Cipher</span><span class="brand-sub">SIGIL LAB / 01</span></span>
         </a>
-        <div class="top-status"><span class="live-dot" aria-hidden="true"></span> Local session · No data leaves this page</div>
+        <div class="top-status"><span class="live-dot" aria-hidden="true"></span> LOCAL CIPHER · REMOTE ART</div>
       </header>
       <main id="main">
         <div class="hero-row">
           <div>
             <div class="eyebrow">Educational substitution console</div>
-            <h1>Letters into sigils.</h1>
-            <p class="intro">A small reversible text exercise. Mew maps uppercase A–Z across sigil, hexagon, and crescent tokens—<strong>not secure encryption.</strong></p>
+            <h1>Solar keys, zodiac sigils.</h1>
+            <p class="intro">A reversible A–Z glyph exercise inspired by runes, cuneiform, hieroglyphs, and zodiac seals. Elemental and solar tags are custom reference data—<strong>not secure encryption or historical translation.</strong></p>
           </div>
-          <div class="hero-note"><b>Alphabet key · 26</b>§ © ¬ ¼ å æ · H0–H3 · C0–Cf<br />Fixed mapping · no key exchange</div>
+          <figure class="seal-figure" aria-label="Mew.exe zodiac seal reference with generated glyphs around the circle">
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lilith-mew-exe-wh0hSEJRI65mUZ6U4wailcTxheyQ2G.webp" alt="A split cybernetic portrait framed by a glowing circular seal of runic marks and zodiac imagery." loading="eager" decoding="async" />
+            <div class="seal-orbit" id="sealOrbit" aria-hidden="true"></div>
+          </figure>
         </div>
         <div class="workspace">
           <section class="panel composer" aria-labelledby="console-title">
@@ -195,33 +220,61 @@
               </div>
               <div class="field-label"><span id="outputLabel">Sigil output</span><span>In-memory only</span></div>
               <div class="output-box" id="outputText" role="status" aria-live="polite" aria-atomic="true" data-empty="true">Your transformed text appears here.</div>
-              <div class="output-foot"><span id="outputCount">0 symbols</span><button type="button" class="action secondary" id="copyButton" aria-label="Copy output">Copy output</button></div>
+              <div class="output-foot"><span id="outputCount">0 characters</span><button type="button" class="action secondary" id="copyButton" aria-label="Copy output">Copy output</button></div>
             </div>
           </section>
           <aside class="side-stack" aria-label="Cipher reference and status">
             <section class="panel mapping" aria-labelledby="mapping-title">
               <div class="side-head"><h2 id="mapping-title">Alphabet key</h2><span>UPPERCASE A–Z</span></div>
               <div class="key-groups" aria-label="A to Z substitution mapping">
-                <section class="key-group" aria-label="Sigils map to letters A through F">
-                  <div class="key-group-title">Sigils · A—F</div>
+                <section class="key-group" aria-label="Runic elemental and solar keys map to letters A through F">
+                  <div class="key-group-title">Runic keys · A—F · elemental / solar</div>
                   <div class="key-token-list">
-                    <span class="key-token"><b>§</b>A</span><span class="key-token"><b>©</b>B</span><span class="key-token"><b>¬</b>C</span><span class="key-token"><b>¼</b>D</span><span class="key-token"><b>å</b>E</span><span class="key-token"><b>æ</b>F</span>
+                    <span class="key-token" role="img" aria-label="A, runic glyph, solar key" title="Custom solar key"><b aria-hidden="true">ᚠ</b><span>A · SUN</span></span>
+                    <span class="key-token" role="img" aria-label="B, runic glyph, fire key" title="Custom fire key"><b aria-hidden="true">ᚢ</b><span>B · FIRE</span></span>
+                    <span class="key-token" role="img" aria-label="C, runic glyph, earth key" title="Custom earth key"><b aria-hidden="true">ᚦ</b><span>C · EARTH</span></span>
+                    <span class="key-token" role="img" aria-label="D, runic glyph, air key" title="Custom air key"><b aria-hidden="true">ᚨ</b><span>D · AIR</span></span>
+                    <span class="key-token" role="img" aria-label="E, runic glyph, water key" title="Custom water key"><b aria-hidden="true">ᚱ</b><span>E · WATER</span></span>
+                    <span class="key-token" role="img" aria-label="F, runic glyph, solar fire key" title="Custom solar-fire key"><b aria-hidden="true">ᚲ</b><span>F · SOL</span></span>
                   </div>
                 </section>
-                <section class="key-group" aria-label="Hexagon tokens map to letters G through J">
-                  <div class="key-group-title">Hexagons · G—J</div>
+                <section class="key-group" aria-label="Cuneiform-inspired elemental keys map to letters G through J">
+                  <div class="key-group-title">Cuneiform · G—J · four elements</div>
                   <div class="key-token-list">
-                    <span class="key-token"><b>H0</b>G</span><span class="key-token"><b>H1</b>H</span><span class="key-token"><b>H2</b>I</span><span class="key-token"><b>H3</b>J</span>
+                    <span class="key-token" role="img" aria-label="G, cuneiform sign, fire key" title="Custom fire key"><b aria-hidden="true">𒀀</b><span>G · FIRE</span></span>
+                    <span class="key-token" role="img" aria-label="H, cuneiform sign, earth key" title="Custom earth key"><b aria-hidden="true">𒁹</b><span>H · EARTH</span></span>
+                    <span class="key-token" role="img" aria-label="I, cuneiform sign, air key" title="Custom air key"><b aria-hidden="true">𒂗</b><span>I · AIR</span></span>
+                    <span class="key-token" role="img" aria-label="J, cuneiform sign, water key" title="Custom water key"><b aria-hidden="true">𒆠</b><span>J · WATER</span></span>
                   </div>
                 </section>
-                <section class="key-group" aria-label="Crescent tokens map to letters K through Z">
-                  <div class="key-group-title">Crescents · K—Z</div>
+                <section class="key-group" aria-label="Hieroglyphic solar keys map to letters K through N">
+                  <div class="key-group-title">Hieroglyphic · K—N · solar cycle</div>
                   <div class="key-token-list">
-                    <span class="key-token"><b>C0</b>K</span><span class="key-token"><b>C1</b>L</span><span class="key-token"><b>C2</b>M</span><span class="key-token"><b>C3</b>N</span><span class="key-token"><b>C4</b>O</span><span class="key-token"><b>C5</b>P</span><span class="key-token"><b>C6</b>Q</span><span class="key-token"><b>C7</b>R</span><span class="key-token"><b>C8</b>S</span><span class="key-token"><b>C9</b>T</span><span class="key-token"><b>Ca</b>U</span><span class="key-token"><b>Cb</b>V</span><span class="key-token"><b>Cc</b>W</span><span class="key-token"><b>Cd</b>X</span><span class="key-token"><b>Ce</b>Y</span><span class="key-token"><b>Cf</b>Z</span>
+                    <span class="key-token" role="img" aria-label="K, hieroglyphic-inspired eye key, dawn" title="Custom dawn key"><b aria-hidden="true">𓂀</b><span>K · DAWN</span></span>
+                    <span class="key-token" role="img" aria-label="L, hieroglyphic-inspired sun disk, noon" title="Custom noon key"><b aria-hidden="true">𓇳</b><span>L · NOON</span></span>
+                    <span class="key-token" role="img" aria-label="M, hieroglyphic-inspired ankh, dusk" title="Custom dusk key"><b aria-hidden="true">𓋹</b><span>M · DUSK</span></span>
+                    <span class="key-token" role="img" aria-label="N, hieroglyphic-inspired star, night" title="Custom night key"><b aria-hidden="true">𓇼</b><span>N · NIGHT</span></span>
+                  </div>
+                </section>
+                <section class="key-group" aria-label="Zodiac signs map to letters O through Z with planetary and elemental metadata">
+                  <div class="key-group-title">Zodiac · O—Z · planet / element</div>
+                  <div class="key-token-list">
+                    <span class="key-token" role="img" aria-label="O, Aries, Mars, Fire" title="Aries · Mars · Fire"><b aria-hidden="true">♈</b><span>O · ARIES</span></span>
+                    <span class="key-token" role="img" aria-label="P, Taurus, Venus, Earth" title="Taurus · Venus · Earth"><b aria-hidden="true">♉</b><span>P · TAURUS</span></span>
+                    <span class="key-token" role="img" aria-label="Q, Gemini, Mercury, Air" title="Gemini · Mercury · Air"><b aria-hidden="true">♊</b><span>Q · GEMINI</span></span>
+                    <span class="key-token" role="img" aria-label="R, Cancer, Moon, Water" title="Cancer · Moon · Water"><b aria-hidden="true">♋</b><span>R · CANCER</span></span>
+                    <span class="key-token" role="img" aria-label="S, Leo, Sun, Fire" title="Leo · Sun · Fire"><b aria-hidden="true">♌</b><span>S · LEO</span></span>
+                    <span class="key-token" role="img" aria-label="T, Virgo, Mercury, Earth" title="Virgo · Mercury · Earth"><b aria-hidden="true">♍</b><span>T · VIRGO</span></span>
+                    <span class="key-token" role="img" aria-label="U, Libra, Venus, Air" title="Libra · Venus · Air"><b aria-hidden="true">♎</b><span>U · LIBRA</span></span>
+                    <span class="key-token" role="img" aria-label="V, Scorpio, Mars and Pluto, Water" title="Scorpio · Mars / Pluto · Water"><b aria-hidden="true">♏</b><span>V · SCORPIO</span></span>
+                    <span class="key-token" role="img" aria-label="W, Sagittarius, Jupiter, Fire" title="Sagittarius · Jupiter · Fire"><b aria-hidden="true">♐</b><span>W · SAGITTARIUS</span></span>
+                    <span class="key-token" role="img" aria-label="X, Capricorn, Saturn, Earth" title="Capricorn · Saturn · Earth"><b aria-hidden="true">♑</b><span>X · CAPRICORN</span></span>
+                    <span class="key-token" role="img" aria-label="Y, Aquarius, Saturn and Uranus, Air" title="Aquarius · Saturn / Uranus · Air"><b aria-hidden="true">♒</b><span>Y · AQUARIUS</span></span>
+                    <span class="key-token" role="img" aria-label="Z, Pisces, Jupiter and Neptune, Water" title="Pisces · Jupiter / Neptune · Water"><b aria-hidden="true">♓</b><span>Z · PISCES</span></span>
                   </div>
                 </section>
               </div>
-              <p class="mapping-note">Each uppercase letter has one token. Lowercase and other characters pass through; literal opening brackets are escaped for reversibility.</p>
+              <p class="mapping-note">R, C, H, and Z token IDs keep the cipher legible without specialist fonts. Zodiac metadata is a reference; ancient-style marks and elemental assignments are custom, not translations.</p>
               <div class="field-rail" aria-label="Illustrative field scale and reference expression">
                 <div class="field-rail-head"><span>Geospatial cipher · 3-pulse field</span><span>01—05</span></div>
                 <div class="spectrum-line" role="img" aria-label="Pulse palette cycles cyan, magenta, blue, purple, then green"></div>
@@ -245,13 +298,13 @@
           </aside>
         </div>
         <div class="warning" role="note"><span class="warning-mark" aria-hidden="true">!</span><span><strong>Learning toy, not cryptography.</strong> This fixed substitution is easy to reverse and offers no confidentiality. Don&apos;t enter secrets or sensitive data.</span></div>
-        <footer class="footer"><span>MEW / SIGIL TRANSLATOR</span><span>Local-only · No storage · No network requests</span></footer>
+        <footer class="footer"><span>MEW / ZODIAC SIGIL TRANSLATOR</span><span>Cipher runs locally · No storage · Reference art is remote</span></footer>
       </main>
     </div>
     <script>
       (() => {
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const payloads = ["§", "©", "¬", "¼", "å", "æ", "H0", "H1", "H2", "H3", ...Array.from({ length: 16 }, (_, index) => `C${index.toString(16)}`)];
+        const payloads = ["R1", "R2", "R3", "R4", "R5", "R6", "C1", "C2", "C3", "C4", "H1", "H2", "H3", "H4", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12"];
         const forward = new Map(Array.from(letters, (letter, index) => [letter, payloads[index]]));
         const reverse = new Map(Array.from(forward, ([letter, token]) => [token, letter]));
         const source = document.querySelector("#sourceText");
@@ -266,6 +319,13 @@
         const modeMetric = document.querySelector("#modeMetric");
         const lengthMetric = document.querySelector("#lengthMetric");
         const matchMetric = document.querySelector("#matchMetric");
+        const sealOrbit = document.querySelector("#sealOrbit");
+        payloads.forEach((glyph, index) => {
+          const orbitGlyph = document.createElement("span");
+          orbitGlyph.textContent = glyph;
+          orbitGlyph.style.setProperty("--orbit-index", String(index));
+          sealOrbit.append(orbitGlyph);
+        });
         let mode = "encode";
 
         function encodeText(value) {
