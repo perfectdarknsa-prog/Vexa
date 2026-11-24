@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0a0d0c" />
-        <meta name="description" content="Mew Cipher is a local educational cipher with custom runic, hieroglyphic, cuneiform-inspired, and zodiac keys." />
-        <title>Mew Cipher — Zodiac Sigil Lab</title>
+        <meta name="description" content="Explore three local telemetry dashboards for a fictional solar-array scanner and reversible sigil cipher." />
+        <title>Mew Cipher — Telemetry Dashboards</title>
 
     <style>
       :root {
@@ -157,6 +157,84 @@
       .warning strong { color: #d8ddda; font-weight: 650; }
       .footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 25px; color: var(--faint); font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
       .footer span:first-child { color: #959c97; }
+      .dashboard-tabs { display: flex; gap: 7px; margin: 0 0 18px; padding: 5px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: rgba(13, 16, 14, .9); }
+      .dashboard-tabs button { flex: 1 0 auto; min-height: 42px; padding: 0 14px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; }
+      .dashboard-tabs button[aria-selected="true"] { border-color: #424a45; background: #252b27; color: var(--ink); }
+      .dashboard-tabs button:focus-visible, .dashboard-panel button:focus-visible, .dashboard-panel input:focus-visible, .action:focus-visible { outline: 2px solid var(--holo-cyan); outline-offset: 3px; }
+      .dashboard-view[hidden] { display: none !important; }
+      .dashboard-view { margin-bottom: 26px; }
+      .dashboard-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin: 2px 0 18px; }
+      .dashboard-heading h2 { margin: 8px 0 4px; font: 500 clamp(24px, 3vw, 34px)/1.1 Georgia, "Times New Roman", serif; }
+      .dashboard-heading p { max-width: 620px; margin: 0; color: var(--muted); font-size: 12px; }
+      .simulation-tag, .status-pill { display: inline-flex; align-items: center; gap: 7px; padding: 6px 9px; border: 1px solid #343c37; border-radius: 999px; background: #111513; color: #b9c1bc; font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+      .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(270px, .8fr); gap: 16px; align-items: stretch; }
+      .dashboard-panel { min-width: 0; overflow: hidden; }
+      .dashboard-content { padding: 20px; }
+      .array-layout { display: grid; grid-template-columns: minmax(220px, .95fr) minmax(180px, 1.05fr); align-items: center; gap: 18px; }
+      .array-graphic { position: relative; width: min(100%, 310px); aspect-ratio: 1; margin: auto; border: 1px solid rgba(101, 231, 240, .25); border-radius: 50%; background: radial-gradient(circle, rgba(217, 223, 219, .14) 0 2px, transparent 3px), repeating-radial-gradient(circle, transparent 0 28px, rgba(101, 231, 240, .29) 29px 30px, transparent 31px 45px), conic-gradient(from 25deg, transparent 0 19%, rgba(173, 145, 255, .13) 19.5% 20%, transparent 20.5% 48%, rgba(101, 231, 240, .11) 48.5% 49%, transparent 49.5%); box-shadow: inset 0 0 38px rgba(101, 231, 240, .06), 0 0 28px rgba(101, 231, 240, .05); }
+      .array-graphic::before, .array-graphic::after { position: absolute; inset: 12%; border: 1px solid rgba(237, 113, 214, .3); border-radius: 50%; content: ""; }
+      .array-graphic::after { inset: 28%; border-color: rgba(173, 145, 255, .4); }
+      .array-core { position: absolute; inset: 42%; display: grid; place-items: center; border: 1px solid rgba(220, 230, 223, .5); border-radius: 50%; background: radial-gradient(circle, rgba(217, 223, 219, .22), rgba(14, 18, 16, .96) 72%); color: var(--ink); font: 16px ui-monospace, SFMono-Regular, Menlo, monospace; box-shadow: 0 0 18px rgba(217, 223, 219, .14); }
+      .array-index { position: absolute; color: #c8d1cc; font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; text-shadow: 0 0 8px rgba(101, 231, 240, .65); }
+      .index-a { top: 16%; left: 50%; transform: translateX(-50%); }
+      .index-b { top: 31%; right: 20%; }
+      .index-c { bottom: 27%; right: 15%; }
+      .index-d { bottom: 18%; left: 34%; }
+      .index-e { top: 45%; left: 12%; }
+      .crescent-marker { position: absolute; width: 14px; height: 14px; border: 1px solid var(--holo-purple); border-radius: 50%; box-shadow: inset -4px 0 0 #0d1110, 0 0 9px rgba(173, 145, 255, .45); }
+      .crescent-a { top: 23%; left: 28%; }
+      .crescent-b { top: 54%; right: 13%; border-color: var(--holo-cyan); }
+      .crescent-c { bottom: 16%; left: 56%; border-color: var(--holo-magenta); }
+      .array-readout { display: grid; gap: 10px; }
+      .readout-row { display: flex; justify-content: space-between; gap: 12px; padding: 11px 12px; border: 1px solid #2d342f; border-radius: 9px; background: rgba(10, 13, 12, .68); }
+      .readout-row span:first-child { color: var(--muted); font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+      .readout-row strong { color: var(--ink); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; text-align: right; }
+      .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 14px 0 0; padding: 12px; border: 1px solid #313833; border-radius: 9px; background: #101412; }
+      .switch-row label { color: var(--ink); font-size: 11px; font-weight: 600; }
+      .switch-row input { width: 17px; height: 17px; accent-color: var(--holo-cyan); }
+      .crescent-strip { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+      .crescent-chip { padding: 6px 8px; border: 1px solid #343b36; border-radius: 7px; color: var(--muted); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .formula-note { margin: 13px 0 0; color: var(--faint); font: 10px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .formula-note.tight { margin-top: 0; }
+      .metric-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+      .metric-stack .metric { min-height: 70px; padding: 12px; border: 1px solid #272e29; }
+      .table-wrap { overflow-x: auto; }
+      .telemetry-table { width: 100%; border-collapse: collapse; text-align: left; font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .telemetry-table th { padding: 10px 9px; border-bottom: 1px solid #39413c; color: var(--faint); font-weight: 500; white-space: nowrap; text-transform: uppercase; }
+      .telemetry-table td { padding: 12px 9px; border-bottom: 1px solid #242a26; color: #d1d7d3; white-space: nowrap; }
+      .telemetry-table tbody tr:last-child td { border-bottom: 0; }
+      .telemetry-table td:first-child { color: var(--holo-cyan); }
+      .exclusion-note { display: flex; gap: 9px; margin-top: 14px; padding: 11px 12px; border: 1px solid #38322c; border-radius: 9px; background: rgba(54, 43, 33, .2); color: #c5b8a6; font-size: 10px; line-height: 1.5; }
+      .event-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(270px, .78fr); gap: 16px; margin-top: 16px; }
+      .queue-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+      .queue-item { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 11px; border: 1px solid #2d342f; border-radius: 9px; background: #101412; }
+      .queue-code { color: var(--holo-cyan); font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .queue-copy strong { display: block; color: var(--ink); font-size: 11px; font-weight: 600; }
+      .queue-copy span { display: block; margin-top: 3px; color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .queue-state { color: #aeb7b1; font: 8px ui-monospace, SFMono-Regular, Menlo, monospace; text-align: right; text-transform: uppercase; }
+      .queue-state.alert { color: #e4a38e; }
+      .target-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 9px; align-items: end; margin-top: 14px; }
+      .target-form label { display: grid; gap: 6px; color: var(--muted); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+      .target-form input { width: 100%; min-height: 40px; padding: 0 10px; border: 1px solid #39413c; border-radius: 8px; background: #0b0e0c; color: var(--ink); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .target-form button { min-height: 40px; padding: 0 12px; border: 1px solid #b9c0bb; border-radius: 8px; background: var(--mint); color: #171a18; cursor: pointer; font-size: 10px; font-weight: 700; }
+      .alert-simulation { margin-top: 12px; padding: 11px 12px; border: 1px solid rgba(211, 126, 104, .34); border-radius: 9px; background: rgba(75, 36, 30, .16); color: #c8aaa1; font-size: 10px; line-height: 1.55; }
+      .relay-direction { color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .queue-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .queue-group h3 { margin: 0 0 9px; color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
+      .queue-group .queue-list { min-height: 20px; }
+      @media (max-width: 800px) {
+        .dashboard-grid, .event-layout { grid-template-columns: 1fr; }
+        .dashboard-heading { align-items: flex-start; flex-direction: column; }
+      }
+      @media (max-width: 560px) {
+        .dashboard-tabs button { padding: 0 10px; font-size: 9px; }
+        .dashboard-content { padding: 16px; }
+        .array-layout { grid-template-columns: 1fr; }
+        .array-graphic { width: min(100%, 270px); }
+        .queue-groups { grid-template-columns: 1fr; }
+        .queue-item { grid-template-columns: 1fr auto; }
+        .queue-code { grid-column: 1 / -1; }
+      }
       @media (max-width: 800px) {
         .workspace { grid-template-columns: 1fr; }
         .side-stack { grid-template-columns: 1fr 1fr; align-items: start; }
@@ -187,21 +265,76 @@
           <span class="brand-mark" aria-hidden="true">§</span>
           <span><span class="brand-name">Mew Cipher</span><span class="brand-sub">SIGIL LAB / 01</span></span>
         </a>
-        <div class="top-status"><span class="live-dot" aria-hidden="true"></span> LOCAL CIPHER · REMOTE ART</div>
+        <div class="top-status"><span class="live-dot" aria-hidden="true"></span> LOCAL SIMULATION · NO LIVE TELEMETRY</div>
       </header>
       <main id="main">
         <div class="hero-row">
           <div>
-            <div class="eyebrow">Educational substitution console</div>
-            <h1>Solar keys, zodiac sigils.</h1>
-            <p class="intro">A reversible A–Z glyph exercise inspired by runes, cuneiform, hieroglyphs, and zodiac seals. Elemental and solar tags are custom reference data—<strong>not secure encryption or historical translation.</strong></p>
+            <div class="eyebrow">Local telemetry simulation</div>
+            <h1>Three views. One signal.</h1>
+            <p class="intro">Explore a fictional solar-array map, a Carrington-style hex scanner, and a reverse sigil relay. All readings are synthetic and stay in this browser; the cipher is <strong>not secure encryption or historical translation.</strong></p>
           </div>
           <figure class="seal-figure" aria-label="Mew.exe zodiac seal reference with generated glyphs around the circle">
             <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/lilith-mew-exe-wh0hSEJRI65mUZ6U4wailcTxheyQ2G.webp" alt="A split cybernetic portrait framed by a glowing circular seal of runic marks and zodiac imagery." loading="eager" decoding="async" />
             <div class="seal-orbit" id="sealOrbit" aria-hidden="true"></div>
           </figure>
         </div>
-        <div class="workspace">
+        <nav class="dashboard-tabs" role="tablist" aria-label="Telemetry dashboards">
+          <button id="tab-solar" type="button" role="tab" aria-selected="true" aria-controls="dashboard-solar" tabindex="0">01 · Solar Array</button>
+          <button id="tab-scanner" type="button" role="tab" aria-selected="false" aria-controls="dashboard-scanner" tabindex="-1">02 · Carrington Scanner</button>
+          <button id="tab-relay" type="button" role="tab" aria-selected="false" aria-controls="dashboard-relay" tabindex="-1">03 · Reverse Relay</button>
+        </nav>
+        <section class="dashboard-view" id="dashboard-solar" role="tabpanel" aria-labelledby="tab-solar">
+          <div class="dashboard-heading"><div><div class="eyebrow">01 / Array geometry</div><h2>Concentric index map</h2><p>Compare ring indices with crescent markers. Overlay depth is a display-only transform; raw event codes remain unchanged outside overlay mode.</p></div><span class="simulation-tag">Synthetic sample · no live sensors</span></div>
+          <div class="dashboard-grid">
+            <section class="panel dashboard-panel" aria-labelledby="array-map-title">
+              <div class="panel-head"><div class="panel-title" id="array-map-title"><span class="panel-index">MAP /</span> Solar array</div><span class="simulation-tag">RINGS 00—05</span></div>
+              <div class="dashboard-content">
+                <div class="array-layout">
+                  <div class="array-graphic" role="img" aria-label="Fictional solar array with five concentric index rings, three crescent markers, and one central reference point">
+                    <span class="array-index index-a" aria-hidden="true">IDX 05</span><span class="array-index index-b" aria-hidden="true">IDX 04</span><span class="array-index index-c" aria-hidden="true">IDX 03</span><span class="array-index index-d" aria-hidden="true">IDX 02</span><span class="array-index index-e" aria-hidden="true">IDX 01</span>
+                    <span class="crescent-marker crescent-a" aria-hidden="true"></span><span class="crescent-marker crescent-b" aria-hidden="true"></span><span class="crescent-marker crescent-c" aria-hidden="true"></span><span class="array-core" aria-hidden="true">SOL</span>
+                  </div>
+                  <div class="array-readout">
+                    <div class="readout-row"><span>Selected event</span><strong>CARR-014</strong></div>
+                    <div class="readout-row"><span>Ring / crescent</span><strong>03 / Waning</strong></div>
+                    <div class="readout-row"><span>Overlay depth</span><strong id="overlayDepthValue">CARR-014</strong></div>
+                    <div class="readout-row"><span>Pixel signal</span><strong id="pixelSignalValue">18 → 15</strong></div>
+                    <div class="switch-row"><label for="overlayMode">Apply overlay depth</label><input id="overlayMode" type="checkbox" aria-label="Enable overlay depth coding" /></div>
+                    <p class="formula-note" id="overlayModeNote" aria-live="polite">Overlay off · event code shown as-is. Pixel display uses y − 3.</p>
+                  </div>
+                </div>
+                <div class="crescent-strip" aria-label="Crescent telemetry phases"><span class="crescent-chip">C1 · Waxing</span><span class="crescent-chip">C2 · Full</span><span class="crescent-chip">C3 · Waning</span></div>
+              </div>
+            </section>
+            <section class="panel dashboard-panel" aria-labelledby="array-telemetry-title">
+              <div class="panel-head"><div class="panel-title" id="array-telemetry-title"><span class="panel-index">LIVE /</span> Overlay telemetry</div><span class="status-pill">Local state</span></div>
+              <div class="dashboard-content">
+                <div class="metric-stack">
+                  <div class="metric"><span class="metric-label">Current event</span><span class="metric-value">CARR-014</span></div>
+                  <div class="metric"><span class="metric-label">Raw depth x</span><span class="metric-value">04</span></div>
+                  <div class="metric"><span class="metric-label">Depth rule</span><span class="metric-value" id="depthRuleValue">EVENT CODE</span></div>
+                  <div class="metric"><span class="metric-label">Displayed y</span><span class="metric-value">15 px</span></div>
+                </div>
+                <p class="formula-note">Overlay only: depth = x + 2 for each event. Outside overlays: retain the Carrington event code. Pixel intensity: max(0, y − 3).</p>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section class="dashboard-view" id="dashboard-scanner" role="tabpanel" aria-labelledby="tab-scanner" hidden>
+          <div class="dashboard-heading"><div><div class="eyebrow">02 / Hex telemetry</div><h2>Carrington scanner</h2><p>Map horizontal hex coordinates into row-major integers, cube coordinates, and a custom square-key function.</p></div><span class="simulation-tag">Mapping demo · not a real scanner</span></div>
+          <section class="panel dashboard-panel" aria-labelledby="scanner-table-title">
+            <div class="panel-head"><div class="panel-title" id="scanner-table-title"><span class="panel-index">MAP /</span> Hex → cube → square</div><span class="status-pill">3 mapped events</span></div>
+            <div class="dashboard-content">
+              <div class="table-wrap"><table class="telemetry-table"><thead><tr><th>Event code</th><th>Hex q,r</th><th>Cube q,r,s</th><th>Horizontal int</th><th>Square key</th><th>Phase</th></tr></thead><tbody id="scannerRows"></tbody></table></div>
+              <div class="exclusion-note"><span aria-hidden="true">FILTER /</span><span>Black-hole resonance and RED.EXE alarm records are excluded from the hexagonal swarm mapping.</span></div>
+              <p class="formula-note">Fixed grid radius R = 5 · row-major integer i = (r + R) × 11 + (q + R) · cube s = −q − r · custom cuneiform-inspired square key f(n) = n², where n is hex ring distance.</p>
+            </div>
+          </section>
+        </section>
+        <section class="dashboard-view" id="dashboard-relay" role="tabpanel" aria-labelledby="tab-relay" hidden>
+          <div class="dashboard-heading"><div><div class="eyebrow">03 / Event routing</div><h2>Reverse relay &amp; priority queue</h2><p>Reverse encoded token order, inspect simulated event priority, and inject a user-initiated local override for a scanner ring.</p></div><span class="simulation-tag">No device or network access</span></div>
+          <div class="workspace">
           <section class="panel composer" aria-labelledby="console-title">
             <div class="panel-head">
               <div class="panel-title" id="console-title"><span class="panel-index">01 /</span> Text console</div>
@@ -215,12 +348,13 @@
               <textarea id="sourceText" maxlength="1200" spellcheck="false" placeholder="Type a short message…" aria-describedby="inputHelp"></textarea>
               <div class="transform-row">
                 <button class="action" id="transformButton" type="button"><span aria-hidden="true">↗</span><span id="transformLabel">Run encoding</span></button>
+                <button class="action secondary" id="reverseRelayButton" type="button">Relay backward</button>
                 <button class="action secondary" id="clearButton" type="button">Clear</button>
                 <span class="key-hint" id="inputHelp">Text only · up to 1,200 characters</span>
               </div>
               <div class="field-label"><span id="outputLabel">Sigil output</span><span>In-memory only</span></div>
               <div class="output-box" id="outputText" role="status" aria-live="polite" aria-atomic="true" data-empty="true">Your transformed text appears here.</div>
-              <div class="output-foot"><span id="outputCount">0 characters</span><button type="button" class="action secondary" id="copyButton" aria-label="Copy output">Copy output</button></div>
+              <div class="output-foot"><span id="outputCount">0 characters</span><span class="relay-direction" id="relayDirection" aria-live="polite">Forward token order</span><button type="button" class="action secondary" id="copyButton" aria-label="Copy output">Copy output</button></div>
             </div>
           </section>
           <aside class="side-stack" aria-label="Cipher reference and status">
@@ -297,8 +431,23 @@
             </section>
           </aside>
         </div>
+        <div class="event-layout">
+          <section class="panel dashboard-panel" aria-labelledby="event-queue-title">
+            <div class="panel-head"><div class="panel-title" id="event-queue-title"><span class="panel-index">QUEUE /</span> Priority &amp; interrupts</div><span class="status-pill" id="queueStatus">4 synthetic events</span></div>
+            <div class="dashboard-content"><div class="queue-groups"><section class="queue-group" aria-labelledby="priority-title"><h3 id="priority-title">Priority / interrupt</h3><ul class="queue-list" id="priorityEvents"></ul></section><section class="queue-group" aria-labelledby="secondary-title"><h3 id="secondary-title">Secondary / deferred</h3><ul class="queue-list" id="secondaryEvents"></ul></section></div></div>
+          </section>
+          <section class="panel dashboard-panel" aria-labelledby="override-title">
+            <div class="panel-head"><div class="panel-title" id="override-title"><span class="panel-index">OVERRIDE /</span> Local input</div><span class="status-pill">User-initiated</span></div>
+            <div class="dashboard-content">
+              <p class="formula-note tight">Add a synthetic peripheral event to a ring inside the local scanner array. It is inserted at the front of the priority queue; no hardware is queried.</p>
+              <div class="target-form"><label for="targetRing">Target ring index<input id="targetRing" type="number" min="0" max="5" step="1" value="3" /></label><button id="addOverride" type="button">Inject override</button></div>
+              <div class="alert-simulation"><strong>RED.EXE · SIMULATED / ISOLATED</strong><br />Visual-only defensive alert. No executable payload is present and no audio is loaded or played.</div>
+            </div>
+          </section>
+        </div>
+        </section>
         <div class="warning" role="note"><span class="warning-mark" aria-hidden="true">!</span><span><strong>Learning toy, not cryptography.</strong> This fixed substitution is easy to reverse and offers no confidentiality. Don&apos;t enter secrets or sensitive data.</span></div>
-        <footer class="footer"><span>MEW / ZODIAC SIGIL TRANSLATOR</span><span>Cipher runs locally · No storage · Reference art is remote</span></footer>
+        <footer class="footer"><span>MEW / TELEMETRY SIGIL LAB</span><span>Synthetic data · No storage · No live sensor or network access</span></footer>
       </main>
     </div>
     <script>
@@ -320,6 +469,7 @@
         const lengthMetric = document.querySelector("#lengthMetric");
         const matchMetric = document.querySelector("#matchMetric");
         const sealOrbit = document.querySelector("#sealOrbit");
+        const relayDirection = document.querySelector("#relayDirection");
         payloads.forEach((glyph, index) => {
           const orbitGlyph = document.createElement("span");
           orbitGlyph.textContent = glyph;
@@ -353,8 +503,12 @@
           return false;
         }
 
-        function renderResult() {
-          const result = mode === "encode" ? encodeText(source.value) : decodeText(source.value);
+        function renderResult(reverseOrder = false) {
+          let result = mode === "encode" ? encodeText(source.value) : decodeText(source.value);
+          if (reverseOrder) {
+            const units = result.match(/⟦⟦|⟦[^⟧]+⟧|[\\s\\S]/gu) ?? [];
+            result = units.reverse().join("");
+          }
           const matchText = mode === "encode" ? result : source.value;
           const hasMatch = containsRepeatedToken(matchText);
           output.dataset.match = String(hasMatch);
@@ -366,6 +520,7 @@
           outputCount.textContent = `${Array.from(result).length} characters`;
           inputCount.textContent = `${source.value.length} / 1200`;
           lengthMetric.textContent = String(source.value.length).padStart(4, "0");
+          relayDirection.textContent = reverseOrder ? "Backward token order · local" : "Forward token order";
         }
 
         function setMode(nextMode) {
@@ -385,6 +540,7 @@
         decodeMode.addEventListener("click", () => setMode("decode"));
         source.addEventListener("input", renderResult);
         document.querySelector("#transformButton").addEventListener("click", renderResult);
+        document.querySelector("#reverseRelayButton").addEventListener("click", () => renderResult(true));
         document.querySelector("#clearButton").addEventListener("click", () => {
           source.value = "";
           renderResult();
@@ -401,6 +557,118 @@
             window.setTimeout(() => { event.currentTarget.textContent = "Copy output"; }, 1600);
           }
         });
+
+        const scannerEvents = [
+          { code: "CARR-014", q: 2, r: -1, phase: "Waning" },
+          { code: "CARR-021", q: -2, r: 1, phase: "Waxing" },
+          { code: "SOL-008", q: 1, r: 2, phase: "Full" },
+          { code: "BH-009", q: 2, r: 3, phase: "Excluded", excluded: true },
+          { code: "RED.EXE", q: 0, r: -4, phase: "Excluded", excluded: true },
+        ];
+        const scannerRows = document.querySelector("#scannerRows");
+        scannerEvents.filter((event) => !event.excluded).forEach((event) => {
+          const s = -event.q - event.r;
+          const ring = (Math.abs(event.q) + Math.abs(event.r) + Math.abs(s)) / 2;
+          const horizontalIndex = (event.r + 5) * 11 + (event.q + 5);
+          const row = document.createElement("tr");
+          [event.code, `${event.q}, ${event.r}`, `${event.q}, ${event.r}, ${s}`, String(horizontalIndex), `${ring}² = ${ring * ring}`, event.phase].forEach((value) => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.append(cell);
+          });
+          scannerRows.append(row);
+        });
+
+        const overlayMode = document.querySelector("#overlayMode");
+        function updateArrayReadout() {
+          const overlayActive = overlayMode.checked;
+          document.querySelector("#overlayDepthValue").textContent = overlayActive ? "04 + 2 = 06" : "CARR-014";
+          document.querySelector("#depthRuleValue").textContent = overlayActive ? "x + 2 → 06" : "EVENT CODE";
+          document.querySelector("#overlayModeNote").textContent = overlayActive
+            ? "Overlay active · depth x + 2 applied to this event. Pixel display uses y − 3."
+            : "Overlay off · event code shown as-is. Pixel display uses y − 3.";
+        }
+        overlayMode.addEventListener("change", updateArrayReadout);
+        updateArrayReadout();
+
+        let telemetryEvents = [
+          { code: "CARR-014", title: "Carrington pulse · ring 03", level: "priority", status: "Scanner event" },
+          { code: "RED.EXE", title: "Attack indicator", level: "priority", status: "Simulated · isolated", alert: true },
+          { code: "CRES-008", title: "Crescent index sync", level: "secondary", status: "Deferred" },
+          { code: "BH-009", title: "Black-hole resonance", level: "secondary", status: "Excluded from swarm" },
+        ];
+        const priorityEvents = document.querySelector("#priorityEvents");
+        const secondaryEvents = document.querySelector("#secondaryEvents");
+        function makeQueueItem(event) {
+          const item = document.createElement("li");
+          item.className = "queue-item";
+          const code = document.createElement("span");
+          code.className = "queue-code";
+          code.textContent = event.code;
+          const copy = document.createElement("span");
+          copy.className = "queue-copy";
+          const title = document.createElement("strong");
+          title.textContent = event.title;
+          const status = document.createElement("span");
+          status.textContent = event.status;
+          copy.append(title, status);
+          const state = document.createElement("span");
+          state.className = `queue-state${event.alert ? " alert" : ""}`;
+          state.textContent = event.level === "override" ? "Override" : event.level;
+          item.append(code, copy, state);
+          return item;
+        }
+        function renderQueues() {
+          const priority = telemetryEvents.filter((event) => event.level === "priority" || event.level === "override");
+          const secondary = telemetryEvents.filter((event) => event.level === "secondary");
+          priorityEvents.replaceChildren(...priority.map(makeQueueItem));
+          secondaryEvents.replaceChildren(...secondary.map(makeQueueItem));
+          document.querySelector("#queueStatus").textContent = `${telemetryEvents.length} synthetic events`;
+        }
+        let overrideCount = 0;
+        document.querySelector("#addOverride").addEventListener("click", () => {
+          const target = document.querySelector("#targetRing");
+          const ring = Number(target.value);
+          if (!Number.isInteger(ring) || ring < 0 || ring > 5) {
+            target.reportValidity();
+            return;
+          }
+          overrideCount += 1;
+          telemetryEvents.unshift({
+            code: `OVR-${String(overrideCount).padStart(3, "0")}`,
+            title: `Peripheral input · ring ${String(ring).padStart(2, "0")}`,
+            level: "override",
+            status: "User initiated · local only",
+          });
+          renderQueues();
+        });
+        renderQueues();
+
+        const tabButtons = Array.from(document.querySelectorAll("[role=tab]"));
+        const tabList = document.querySelector("[role=tablist]");
+        function activateTab(button, focus = false) {
+          tabButtons.forEach((tab) => {
+            const active = tab === button;
+            tab.setAttribute("aria-selected", String(active));
+            tab.tabIndex = active ? 0 : -1;
+            document.getElementById(tab.getAttribute("aria-controls")).hidden = !active;
+          });
+          if (focus) button.focus();
+        }
+        tabButtons.forEach((button) => button.addEventListener("click", () => activateTab(button)));
+        tabList.addEventListener("keydown", (event) => {
+          const currentIndex = tabButtons.indexOf(document.activeElement);
+          if (currentIndex < 0) return;
+          let nextIndex = currentIndex;
+          if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabButtons.length;
+          else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabButtons.length) % tabButtons.length;
+          else if (event.key === "Home") nextIndex = 0;
+          else if (event.key === "End") nextIndex = tabButtons.length - 1;
+          else return;
+          event.preventDefault();
+          activateTab(tabButtons[nextIndex], true);
+        });
+
         renderResult();
       })();
     </script>
