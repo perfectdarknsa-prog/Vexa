@@ -218,6 +218,20 @@
       .target-form input { width: 100%; min-height: 40px; padding: 0 10px; border: 1px solid #39413c; border-radius: 8px; background: #0b0e0c; color: var(--ink); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
       .target-form button { min-height: 40px; padding: 0 12px; border: 1px solid #b9c0bb; border-radius: 8px; background: var(--mint); color: #171a18; cursor: pointer; font-size: 10px; font-weight: 700; }
       .alert-simulation { margin-top: 12px; padding: 11px 12px; border: 1px solid rgba(211, 126, 104, .34); border-radius: 9px; background: rgba(75, 36, 30, .16); color: #c8aaa1; font-size: 10px; line-height: 1.55; }
+  .array-event-picker { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid #313833; border-radius: 9px; background: #101412; color: var(--muted); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+  .array-event-picker select { width: 100%; min-height: 34px; border: 1px solid #39413c; border-radius: 7px; background: #0b0e0c; color: var(--ink); padding: 0 9px; font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .telemetry-table tr[data-selected="true"] td { background: rgba(101,231,240,.08); color: #e7ffff; }
+  .relay-sim-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; margin: 14px 0 18px; }
+  .relay-sim-block { min-width: 0; padding: 14px; border: 1px solid #303a35; border-radius: 10px; background: rgba(9,13,11,.68); }
+  .relay-sim-block h3 { margin: 0 0 8px; color: var(--ink); font: 10px ui-monospace,monospace; letter-spacing: .08em; text-transform: uppercase; }
+  .relay-sim-block p { margin: 0 0 10px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+  .relay-sim-block textarea { min-height: 72px; margin-bottom: 9px; }
+  .relay-sim-output { min-height: 56px; max-height: 110px; overflow: auto; padding: 9px; border: 1px solid #28312c; border-radius: 7px; background: #070a09; color: var(--holo-cyan); overflow-wrap: anywhere; white-space: pre-wrap; font: 9px/1.55 ui-monospace,monospace; }
+  .relay-sim-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .detector-status { margin: 10px 0 0; color: #aeb7b1; font: 10px/1.5 ui-monospace,monospace; }
+  .detector-status[data-state="alert"] { color: #f0b09a; }
+  .local-only-note { color: var(--faint)!important; font-size: 9px!important; }
+  .relay-dashboard-active .code-widget { display: none; }
       .relay-direction { color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; }
       .queue-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
       .queue-group h3 { margin: 0 0 9px; color: var(--faint); font: 9px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
@@ -248,7 +262,7 @@
       @media (max-width: 800px) {
         .code-widget { position: static; width: min(100%, 380px); margin: 16px 0 16px auto; box-sizing: border-box; }
         .primary-hud { grid-template-columns: 1fr; }
-        .dashboard-grid, .event-layout { grid-template-columns: 1fr; }
+        .dashboard-grid, .event-layout, .relay-sim-grid { grid-template-columns: 1fr; }
         .dashboard-heading { align-items: flex-start; flex-direction: column; }
       }
       @media (max-width: 560px) {
@@ -344,10 +358,11 @@
                     <span class="crescent-marker crescent-a" aria-hidden="true"></span><span class="crescent-marker crescent-b" aria-hidden="true"></span><span class="crescent-marker crescent-c" aria-hidden="true"></span><span class="array-core" aria-hidden="true">SOL</span>
                   </div>
                   <div class="array-readout">
-                    <div class="readout-row"><span>Selected event</span><strong>CARR-014</strong></div>
-                    <div class="readout-row"><span>Ring / crescent</span><strong>03 / Waning</strong></div>
+                    <div class="readout-row"><span>Selected event</span><strong id="arraySelectedEvent">CARR-014</strong></div>
+                    <div class="readout-row"><span>Ring / crescent</span><strong id="arrayRingPhase">03 / Waning</strong></div>
                     <div class="readout-row"><span>Overlay depth</span><strong id="overlayDepthValue">CARR-014</strong></div>
                     <div class="readout-row"><span>Pixel signal</span><strong id="pixelSignalValue">18 → 15</strong></div>
+                    <label class="array-event-picker" for="arrayEventSelect">Scanner index feed<select id="arrayEventSelect" aria-label="Select a solar array event to index in the scanner"><option value="CARR-014">CARR-014 · index 03</option><option value="CARR-021">CARR-021 · index 02</option><option value="SOL-008">SOL-008 · index 04</option></select></label>
                     <div class="switch-row"><label for="overlayMode">Apply overlay depth</label><input id="overlayMode" type="checkbox" aria-label="Enable overlay depth coding" /></div>
                     <p class="formula-note" id="overlayModeNote" aria-live="polite">Overlay off · event code shown as-is. Pixel display uses y − 3.</p>
                   </div>
@@ -359,7 +374,7 @@
               <div class="panel-head"><div class="panel-title" id="array-telemetry-title"><span class="panel-index">LIVE /</span> Overlay telemetry</div><span class="status-pill">Local state</span></div>
               <div class="dashboard-content">
                 <div class="metric-stack">
-                  <div class="metric"><span class="metric-label">Current event</span><span class="metric-value">CARR-014</span></div>
+                  <div class="metric"><span class="metric-label">Current event</span><span class="metric-value" id="arrayEventMetric">CARR-014</span></div>
                   <div class="metric"><span class="metric-label">Raw depth x</span><span class="metric-value">04</span></div>
                   <div class="metric"><span class="metric-label">Depth rule</span><span class="metric-value" id="depthRuleValue">EVENT CODE</span></div>
                   <div class="metric"><span class="metric-label">Displayed y</span><span class="metric-value">15 px</span></div>
@@ -374,7 +389,7 @@
           <section class="panel dashboard-panel" aria-labelledby="scanner-table-title">
             <div class="panel-head"><div class="panel-title" id="scanner-table-title"><span class="panel-index">MAP /</span> Hex → cube → square</div><span class="status-pill">3 mapped events</span></div>
             <div class="dashboard-content">
-              <div class="table-wrap"><table class="telemetry-table"><thead><tr><th>Event code</th><th>Hex q,r</th><th>Cube q,r,s</th><th>Horizontal int</th><th>Square key</th><th>Phase</th></tr></thead><tbody id="scannerRows"></tbody></table></div>
+              <div class="table-wrap"><table class="telemetry-table"><thead><tr><th>Event code</th><th>Array index</th><th>Hex q,r</th><th>Cube q,r,s</th><th>Horizontal int</th><th>Square key</th><th>Phase</th></tr></thead><tbody id="scannerRows"></tbody></table></div>
               <div class="exclusion-note"><span aria-hidden="true">FILTER /</span><span>Black-hole resonance and RED.EXE alarm records are excluded from the hexagonal swarm mapping.</span></div>
               <p class="formula-note">Fixed grid radius R = 5 · row-major integer i = (r + R) × 11 + (q + R) · cube s = −q − r · custom cuneiform-inspired square key f(n) = n², where n is hex ring distance.</p>
             </div>
@@ -382,6 +397,28 @@
         </section>
         <section class="dashboard-view" id="dashboard-relay" role="tabpanel" aria-labelledby="tab-relay" hidden>
           <div class="dashboard-heading"><div><div class="eyebrow">03 / Event routing</div><h2>Reverse relay &amp; priority queue</h2><p>Reverse encoded token order, inspect simulated event priority, and inject a user-initiated local override for a scanner ring.</p></div><span class="simulation-tag">No device or network access</span></div>
+          <section class="panel" aria-labelledby="relay-simulation-title">
+            <div class="panel-head"><div class="panel-title" id="relay-simulation-title"><span class="panel-index">SIM /</span> Incursion monitor &amp; Alpha → Beta relay</div><span class="status-pill">Browser-only</span></div>
+            <div class="dashboard-content relay-sim-grid">
+              <section class="relay-sim-block" aria-labelledby="incursion-title">
+                <h3 id="incursion-title">Synthetic telemetry incursion detector</h3>
+                <p>Checks only the built-in demonstration event list. It does not inspect devices, networks, or live telemetry.</p>
+                <div class="relay-sim-actions"><button class="action secondary" id="armMonitor" type="button" aria-pressed="false">Arm local monitor</button><button class="action" id="scanSyntheticFeed" type="button">Scan demo feed</button></div>
+                <p class="detector-status" id="detectorStatus" data-state="idle" role="status" aria-live="polite">Monitor disarmed · synthetic feed idle.</p>
+              </section>
+              <section class="relay-sim-block" aria-labelledby="alpha-beta-title">
+                <h3 id="alpha-beta-title">Alpha → Beta → Sigil matrix</h3>
+                <label class="field-label" for="alphaRelayInput"><span>Plain text payload</span><span>160 character limit</span></label>
+                <textarea id="alphaRelayInput" maxlength="160" spellcheck="false" placeholder="Enter text for local mapping…"></textarea>
+                <div class="relay-sim-actions"><button class="action" id="encodeRelay" type="button">Encode &amp; map locally</button></div>
+                <div class="field-label" style="margin-top:12px"><span>UTF-8 bit view · display only</span><span>NOT EXECUTABLE</span></div>
+                <div class="relay-sim-output" id="binaryPreview" aria-label="Text bytes displayed as binary">Binary text view appears here.</div>
+                <div class="field-label" style="margin-top:10px"><span>Sigil matrix output</span><span id="relayTransferState">LOCAL ONLY</span></div>
+                <div class="relay-sim-output" id="sigilMatrixOutput" aria-live="polite">Mapped sigils appear here.</div>
+              </section>
+              <p class="local-only-note" style="grid-column:1/-1;margin:0">Text conversion only: no executable binary is loaded, decompiled, compiled, or transferred. External telemetry connections are disabled; nothing leaves this browser.</p>
+            </div>
+          </section>
           <div class="workspace">
           <section class="panel composer" aria-labelledby="console-title">
             <div class="panel-head">
@@ -685,9 +722,9 @@
         });
 
         const scannerEvents = [
-          { code: "CARR-014", q: 2, r: -1, phase: "Waning" },
-          { code: "CARR-021", q: -2, r: 1, phase: "Waxing" },
-          { code: "SOL-008", q: 1, r: 2, phase: "Full" },
+          { code: "CARR-014", q: 2, r: -1, phase: "Waning", arrayIndex: 3, depth: 4, pixelY: 18 },
+          { code: "CARR-021", q: -2, r: 1, phase: "Waxing", arrayIndex: 2, depth: 3, pixelY: 17 },
+          { code: "SOL-008", q: 1, r: 2, phase: "Full", arrayIndex: 4, depth: 2, pixelY: 20 },
           { code: "BH-009", q: 2, r: 3, phase: "Excluded", excluded: true },
           { code: "RED.EXE", q: 0, r: -4, phase: "Excluded", excluded: true },
         ];
@@ -697,7 +734,8 @@
           const ring = (Math.abs(event.q) + Math.abs(event.r) + Math.abs(s)) / 2;
           const horizontalIndex = (event.r + 5) * 11 + (event.q + 5);
           const row = document.createElement("tr");
-          [event.code, `${event.q}, ${event.r}`, `${event.q}, ${event.r}, ${s}`, String(horizontalIndex), `${ring}² = ${ring * ring}`, event.phase].forEach((value) => {
+          row.dataset.code = event.code;
+          [event.code, `IDX ${String(event.arrayIndex).padStart(2,"0")}`, `${event.q}, ${event.r}`, `${event.q}, ${event.r}, ${s}`, String(horizontalIndex), `${ring}² = ${ring * ring}`, event.phase].forEach((value) => {
             const cell = document.createElement("td");
             cell.textContent = value;
             row.append(cell);
@@ -706,14 +744,24 @@
         });
 
         const overlayMode = document.querySelector("#overlayMode");
+        const arrayEventSelect = document.querySelector("#arrayEventSelect");
         function updateArrayReadout() {
+          const activeEvent = scannerEvents.find((event) => event.code === arrayEventSelect.value) ?? scannerEvents[0];
           const overlayActive = overlayMode.checked;
-          document.querySelector("#overlayDepthValue").textContent = overlayActive ? "04 + 2 = 06" : "CARR-014";
-          document.querySelector("#depthRuleValue").textContent = overlayActive ? "x + 2 → 06" : "EVENT CODE";
+          document.querySelector("#arraySelectedEvent").textContent = activeEvent.code;
+          document.querySelector("#arrayEventMetric").textContent = activeEvent.code;
+          document.querySelector("#arrayRingPhase").textContent = `${String(activeEvent.arrayIndex).padStart(2,"0")} / ${activeEvent.phase}`;
+          document.querySelector("#pixelSignalValue").textContent = `${activeEvent.pixelY} → ${Math.max(0, activeEvent.pixelY - 3)}`;
+          document.querySelector("#overlayDepthValue").textContent = overlayActive ? `${String(activeEvent.depth).padStart(2,"0")} + 2 = ${String(activeEvent.depth + 2).padStart(2,"0")}` : activeEvent.code;
+          document.querySelector("#depthRuleValue").textContent = overlayActive ? `x + 2 → ${String(activeEvent.depth + 2).padStart(2,"0")}` : "EVENT CODE";
           document.querySelector("#overlayModeNote").textContent = overlayActive
-            ? "Overlay active · depth x + 2 applied to this event. Pixel display uses y − 3."
-            : "Overlay off · event code shown as-is. Pixel display uses y − 3.";
+            ? `Overlay active · depth ${activeEvent.depth} + 2 applied to ${activeEvent.code}. Pixel display uses y − 3.`
+            : `Overlay off · ${activeEvent.code} shown as-is. Pixel display uses y − 3.`;
+          scannerRows.querySelectorAll("tr").forEach((row) => {
+            row.dataset.selected = String(row.dataset.code === activeEvent.code);
+          });
         }
+        arrayEventSelect.addEventListener("change", updateArrayReadout);
         overlayMode.addEventListener("change", updateArrayReadout);
         updateArrayReadout();
 
@@ -751,6 +799,50 @@
           secondaryEvents.replaceChildren(...secondary.map(makeQueueItem));
           document.querySelector("#queueStatus").textContent = `${telemetryEvents.length} synthetic events`;
         }
+        const armMonitor = document.querySelector("#armMonitor");
+        const detectorStatus = document.querySelector("#detectorStatus");
+        let monitorArmed = false;
+        armMonitor.addEventListener("click", () => {
+          monitorArmed = !monitorArmed;
+          armMonitor.setAttribute("aria-pressed", String(monitorArmed));
+          armMonitor.textContent = monitorArmed ? "Disarm local monitor" : "Arm local monitor";
+          detectorStatus.dataset.state = "idle";
+          detectorStatus.textContent = monitorArmed ? "Monitor armed · watching built-in synthetic samples only." : "Monitor disarmed · synthetic feed idle.";
+        });
+        document.querySelector("#scanSyntheticFeed").addEventListener("click", () => {
+          if (!monitorArmed) {
+            detectorStatus.dataset.state = "idle";
+            detectorStatus.textContent = "Arm the local monitor before scanning the built-in demo feed.";
+            return;
+          }
+          const demoFeed = ["CARR-014", "SOL-008", "RED.EXE"];
+          const flagged = demoFeed.filter((code) => code === "RED.EXE");
+          detectorStatus.dataset.state = flagged.length ? "alert" : "clear";
+          detectorStatus.textContent = `SIMULATED · ${demoFeed.length} sample events checked · ${flagged.length} demo indicator flagged (${flagged.join(", ")}). No live telemetry inspected.`;
+          if (flagged.length && !telemetryEvents.some((event) => event.code === "SIM-INC-001")) {
+            telemetryEvents.unshift({ code: "SIM-INC-001", title: "Synthetic incursion indicator", level: "priority", status: "Demo only · local monitor", alert: true });
+            renderQueues();
+          }
+        });
+
+        document.querySelector("#encodeRelay").addEventListener("click", () => {
+          const payload = document.querySelector("#alphaRelayInput").value;
+          const binaryPreview = document.querySelector("#binaryPreview");
+          const sigilMatrixOutput = document.querySelector("#sigilMatrixOutput");
+          const transferState = document.querySelector("#relayTransferState");
+          if (!payload.trim()) {
+            binaryPreview.textContent = "Enter text to create a local display-only encoding.";
+            sigilMatrixOutput.textContent = "No text to map.";
+            transferState.textContent = "WAITING FOR TEXT";
+            return;
+          }
+          const sigilText = encodeText(payload);
+          const bytes = new TextEncoder().encode(sigilText);
+          binaryPreview.textContent = Array.from(bytes, (byte) => byte.toString(2).padStart(8,"0")).join(" ");
+          sigilMatrixOutput.textContent = sigilText;
+          transferState.textContent = "MAPPED LOCALLY · NO UPLINK";
+        });
+
         let overrideCount = 0;
         document.querySelector("#addOverride").addEventListener("click", () => {
           const target = document.querySelector("#targetRing");
@@ -779,6 +871,7 @@
             tab.tabIndex = active ? 0 : -1;
             document.getElementById(tab.getAttribute("aria-controls")).hidden = !active;
           });
+          document.body.classList.toggle("relay-dashboard-active", button.id === "tab-relay");
           if (focus) button.focus();
         }
         tabButtons.forEach((button) => button.addEventListener("click", () => activateTab(button)));
